@@ -27,4 +27,4 @@ jobs:
 
       - name: Deploy QnA Knowledge Base
         run: .github/scripts/updateQnAKnowledgeBase.ps1 -QnAName "${{ env.qnaName }}" -projectName "${{ env.qnaName }}" -subscriptionKey "${{ secrets.QnA_SubscriptionKey }}" -faqFolderPath "FAQs"
-        shell: powershell
+        shell: pwsh
