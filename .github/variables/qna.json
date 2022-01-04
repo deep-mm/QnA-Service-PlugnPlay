@@ -1,0 +1,20 @@
+{
+    "variables": [
+        {
+            "name": "resourceGroup",
+            "value": "QnA-Maker"
+        },
+        {
+            "name": "location",
+            "value": "East US"
+        },
+        {
+            "name": "subscriptionId",
+            "value": "2b280d1e-4f48-4a5e-b01b-d56afe8c55f4"
+        },
+        {
+            "name": "qnaName",
+            "value": "qna-maker-ip"
+        }
+    ]
+}

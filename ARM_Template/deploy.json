@@ -1,0 +1,66 @@
+{
+    "$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "name": {
+            "type": "string"
+        },
+        "Sku": {
+            "type": "string",
+            "defaultValue": "F0"
+        },
+        "Location": {
+            "type": "string"
+        },
+        "azureSearchSku": {
+            "type": "string",
+            "defaultValue": "free"
+        },
+        "searchHostingMode": {
+            "type": "string",
+            "defaultValue": "Default"
+        }
+    },
+    "variables": {
+        "puredAzureSearchName": "[replace(parameters('name'), '-', '')]",
+        "normalizedAzureSearchName": "[if(greater(length(variables('puredAzureSearchName')), 40), substring(variables('puredAzureSearchName'), sub(length(variables('puredAzureSearchName')), 40), 40) , variables('puredAzureSearchName'))]",
+        "azureSearchName": "[toLower(concat(variables('normalizedAzureSearchName'), '-as', uniqueString(resourceGroup().id, variables('normalizedAzureSearchName'), parameters('azureSearchSku'), parameters('Location'),parameters('searchHostingMode'))))]"
+    },
+    "resources": [
+        {
+            "type": "Microsoft.CognitiveServices/accounts",
+            "kind": "TextAnalytics",
+            "name": "[concat(parameters('name'),'-languageService')]",
+            "apiVersion": "2021-04-30",
+            "location": "[parameters('Location')]",
+            "sku": {
+                "name": "[parameters('Sku')]"
+            },
+            "properties": {
+                "apiProperties": {
+                    "qnaAzureSearchEndpointId": "[resourceId('Microsoft.Search/searchServices', variables('azureSearchName'))]",
+                    "qnaAzureSearchEndpointKey": "[listadminkeys(resourceId('Microsoft.Search/searchServices', variables('azureSearchName')), '2015-08-19').primaryKey]"
+                },
+                "customSubDomainName": "qna-maker-ip-language"
+            },
+            "dependsOn": [
+                "[variables('azureSearchName')]"
+            ]
+        },
+        {
+            "name": "[variables('azureSearchName')]",
+            "type": "Microsoft.Search/searchServices",
+            "apiVersion": "2015-08-19",
+            "location": "[parameters('Location')]",
+            "tags": {},
+            "properties": {
+                "replicaCount": 1,
+                "partitionCount": 1,
+                "hostingMode": "[parameters('searchHostingMode')]"
+            },
+            "sku": {
+                "name": "[parameters('azureSearchSku')]"
+            }
+        }
+    ]
+}
