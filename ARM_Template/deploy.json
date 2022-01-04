@@ -62,5 +62,11 @@
                 "name": "[parameters('azureSearchSku')]"
             }
         }
-    ]
+    ],
+    "outputs": {
+        "subscriptionKey": {
+            "type": "string",
+            "value": "[listadminkeys(resourceId('Microsoft.CognitiveServices/accounts', concat(parameters('name'),'-languageService')), '2015-08-19').primaryKey]"
+        }
+    }
 }
