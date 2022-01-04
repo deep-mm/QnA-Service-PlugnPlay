@@ -52,4 +52,4 @@ jobs:
         with:
           name: QnA_SubscriptionKey
           value: ${{ steps.armOutput.outputs.subscriptionKey }}
-          pa_token: ${{ secrets.GITHUB_PAT }}
+          pa_token: ${{ secrets.PAT }}
