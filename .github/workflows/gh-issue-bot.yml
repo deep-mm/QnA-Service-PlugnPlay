@@ -17,7 +17,7 @@ jobs:
       - name: Call QnA Service
         id: qna
         run: |
-          $question = ${{ github.event.comment.body }}.Replace('@bot', '');
+          $question = "${{ github.event.comment.body }}".Replace('@bot', '');
           $body = @{"top"                  = 1
               "question"                   = "$question"
               "includeUnstructuredSources" = $true
