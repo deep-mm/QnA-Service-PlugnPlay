@@ -1,0 +1,35 @@
+name: GitHub Issues QnA Bot
+
+on:
+  issue_comment:
+    types:
+      - created
+
+jobs:
+  # Deploy Job
+  get-answer:
+    name: Get Answer from QnA Service
+    if: ${{ startsWith(github.event.comment.body, '@bot') }}
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository #Checkout the Repository into the agent
+        uses: actions/checkout@v2
+
+      - name: Set Environment Variables - Build #Set Variable
+        uses: deep-mm/set-variables@v1.0
+        with:
+          variableFileName: "qna"
+
+      - name: Call QnA Service
+        id: qna
+        run: .github/scripts/getAnswer.ps1 -QnAName "${{ env.qnaName }}" -projectName "${{ env.qnaName }}" -question "${{ github.event.comment.body }}" -subscriptionKey "${{ secrets.QnA_SubscriptionKey }}"
+        shell: powershell
+
+      - name: Create comment
+        uses: peter-evans/create-or-update-comment@v1
+        with:
+          issue-number: ${{ github.event.issue.number }}
+          body: |
+            ${{ github.event.comment.user.login }}, "${{ steps.qna.outputs.answer }}"
