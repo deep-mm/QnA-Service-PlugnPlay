@@ -14,7 +14,7 @@ jobs:
   deploy:
     name: Deploy Infrastructure to Azure
     # The type of runner that the job will run on
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository #Checkout the Repository into the agent
@@ -53,6 +53,20 @@ jobs:
           name: QnA_SubscriptionKey
           value: ${{ steps.armOutput.outputs.subscriptionKey }}
           pa_token: ${{ secrets.PAT }}
+
+  deploy-language:
+    name: Deploy Language Project
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+    needs: [deploy]
+    steps:
+      - name: Checkout Repository #Checkout the Repository into the agent
+        uses: actions/checkout@v2
+
+      - name: Set Environment Variables - Build #Set Variable
+        uses: deep-mm/set-variables@v1.0
+        with:
+          variableFileName: "qna"
 
       - name: Deploy QnA Language Project
         run: .github/scripts/createLanguageProject.ps1 -QnAName "${{ env.qnaName }}" -projectName "${{ env.qnaName }}" -subscriptionKey "${{ secrets.subscriptionKey }}"
