@@ -2,12 +2,12 @@ param(
     [Parameter(Mandatory)]
     [ValidateNotNullOrEmpty()]
     [String]
-    $QnAEndpoint,
+    $QnAName,
 
     [Parameter(Mandatory)]
     [ValidateNotNullOrEmpty()]
     [String]
-    $KnowledgeBaseId,
+    $projectName,
 
     [Parameter(Mandatory)]
     [ValidateNotNullOrEmpty()]
@@ -16,8 +16,8 @@ param(
             
     [Parameter(Mandatory)]
     [ValidateNotNullOrEmpty()]
-    [System.Collections.ArrayList]
-    $updatedFiles
+    [String]
+    $faqFolderPath
 )
 
 function Update-KnowledgeBase {
@@ -25,12 +25,12 @@ function Update-KnowledgeBase {
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [String]
-        $QnAEndpoint,
+        $QnAName,
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
         [String]
-        $KnowledgeBaseId,
+        $projectName,
 
         [Parameter(Mandatory)]
         [ValidateNotNullOrEmpty()]
@@ -48,40 +48,54 @@ function Update-KnowledgeBase {
         $questions
     )
 
-    $body = @{"delete" = @{
-            "sources" = $sources
-        };
-        "add"          = @{
-            "qnaList" = $questions
-        }
+    $body = [System.Collections.ArrayList]::new()
+
+    foreach ($source in $sources) {
+        $body.Add(@{
+                "op"    = "delete"
+                "value" = @{
+                    "source" = "$source"
+                }
+            })
+    }
+
+    if ($body.Count -gt 0) {
+        Invoke-RestMethod -Uri "https://$($QnAName)-language.cognitiveservices.azure.com/language/query-knowledgebases/projects/$($projectName)/sources?api-version=2021-10-01" -Method PATCH -Headers @{"Ocp-Apim-Subscription-Key" = "$subscriptionKey"; "Content-Type" = "application/json" } -ContentType "application/json" -Body $($body | ConvertTo-Json)
+        Start-Sleep -s 20
+    }
+
+    $body = [System.Collections.ArrayList]::new()
+
+    foreach ($question in $questions) {
+        $body.Add(@{
+                "op"    = "add"
+                "value" = $question
+            })
     }
 
     $body = ConvertTo-json ($body) -Depth 6
+    Write-Output ($body)
 
-    Write-Host $($body)
+    Invoke-RestMethod -Uri "https://$($QnAName)-language.cognitiveservices.azure.com/language/query-knowledgebases/projects/$($projectName)/qnas?api-version=2021-10-01" -Method PATCH -Headers @{"Ocp-Apim-Subscription-Key" = "$subscriptionKey"; "Content-Type" = "application/json" } -ContentType "application/json" -Body $body
         
-    Invoke-RestMethod -Uri "$($QnAEndpoint)qnamaker/v4.0/knowledgebases/$KnowledgeBaseId" -Method PATCH -Headers @{"Ocp-Apim-Subscription-Key" = "$subscriptionKey"; "Content-Type" = "application/json" } -Body $($body) -ContentType "application/json"
+    Start-Sleep -s 40
 
-    Start-Sleep -s 180
-    #Call Publish API
-    Invoke-RestMethod -Uri "$($QnAEndpoint)qnamaker/v4.0/knowledgebases/$KnowledgeBaseId" -Method POST -Headers @{"Ocp-Apim-Subscription-Key" = "$subscriptionKey"; "Content-Type" = "application/json" } -ContentType "application/json"
+    Invoke-RestMethod -Uri "https://$($QnAName)-language.cognitiveservices.azure.com/language/query-knowledgebases/projects/$($projectName)/deployments/production?api-version=2021-10-01" -Method PUT -Headers @{"Ocp-Apim-Subscription-Key" = "$subscriptionKey"; "Content-Type" = "application/json" }
 }
 
-$faq_files_updated = $updatedFiles
+$faq_files_updated = Get-ChildItem -Path $faqFolderPath -Name -Include *.md
 $sources = [System.Collections.ArrayList]::new()
 $questions = [System.Collections.ArrayList]::new()
-
-$context = @{ "isContextOnly" = $false; "prompts" = @(@{"displayOrder" = 1; "qnaId" = 213; "displayText" = 'Improve Answer' }, @{"displayOrder" = 2; "qnaId" = 214; "displayText" = 'Not satisfied with the answer? Ask Experts' }) }
 
 foreach ($faqFile in $faq_files_updated) {
 
     Write-Host "Scanning FAQ file $faqFile"
     #Get questions from FAQ file
-    $file = "$faqFile"
-    $fileName = $file.Split('\')[-1].Split('.')[0]
+    $fileName = $faqFile.Split('.md')[0];
+    $file = "$faqFolderPath/$faqFile"
     foreach ($line in Get-Content $file) {
         if ($line -match '<!-- Question -->') {
-            $question = @{ "questions" = @(''); "answer" = ''; "source" = "$fileName"; "metadata" = @(); "context" = $context }
+            $question = @{ "questions" = @(''); "answer" = ''; "source" = "$fileName"; "metadata" = @{}; "dialog" = @{"isContextOnly" = $false; "prompts" = @() } }
         }
         elseif ($line -match "Question:") {
             $primaryQuestion = ($line.Split(': ')[1]).Split('**')[0]
@@ -106,10 +120,4 @@ foreach ($faqFile in $faq_files_updated) {
     $sources.Add("$fileName")
 }
 
-$result = Update-KnowledgeBase "$QnAEndpoint" "$KnowledgeBaseId" "$subscriptionKey" $sources $questions
-if ($null -eq $result.operationId) {
-    Write-Host "Failed"
-}
-else {
-    Write-Host "Success"
-}
+Update-KnowledgeBase "$QnAName" "$projectName" "$subscriptionKey" $sources $questions

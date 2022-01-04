@@ -1,0 +1,30 @@
+#Name of the workflow
+name: QnA-KB-Deploy
+
+#Triggers to run the workflow
+on:
+  push: #To trigger workflow when an update in pushed onto main branch
+    branches: [master]
+  pull_request: #To trigger workflow when a PR is raised against main branch
+    branches: [master]
+  workflow_dispatch: #To trigger workflow manually using GUI
+
+jobs:
+  # Build Job
+  build:
+    name: Build
+    # The type of runner that the job will run on
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Repository #Checkout the Repository into the agent
+        uses: actions/checkout@v2
+
+      - name: Set Environment Variables - Build #Set Variables - Build
+        uses: deep-mm/set-variables@v1.0
+        with:
+          variableFileName: "qna"
+
+      - name: Deploy QnA Knowledge Base
+        run: .github/scripts/updateQnAKnowledgeBase.ps1 -QnAName "${{ env.qnaName }}" -projectName "${{ env.qnaName }}" -subscriptionKey "${{ secrets.QnA_SubscriptionKey }}" -faqFolderPath "FAQs"
+        shell: powershell
