@@ -16,7 +16,16 @@ jobs:
     steps:
       - name: Call QnA Service
         id: qna
-        run: .github/scripts/getAnswer.ps1 -QnAName "${{ secrets.qnaName }}" -projectName "${{ secrets.qnaName }}" -question "${{ github.event.comment.body }}" -subscriptionKey "${{ secrets.QnA_SubscriptionKey }}"
+        run: |
+          $question = ${{ github.event.comment.body }}.Replace('@bot', '');
+          $body = @{"top"                  = 1
+              "question"                   = "$question"
+              "includeUnstructuredSources" = $true
+              "confidenceScoreThreshold"   = 0
+          }
+          $response = Invoke-RestMethod -Uri "https://${{ secrets.qnaName }}-language.cognitiveservices.azure.com/language/:query-knowledgebases/?projectName=${{ secrets.qnaName }}&api-version=2021-10-01&deploymentName=production" -Method POST -Headers @{"Ocp-Apim-Subscription-Key" = "${{ secrets.QnA_SubscriptionKey }}"; "Content-Type" = "application/json" } -ContentType "application/json" -Body $($body | ConvertTo-Json)
+          echo "::set-output name=answer::$($response.answers[0].answer)"
+#.github/scripts/getAnswer.ps1 -QnAName "${{ secrets.qnaName }}" -projectName "${{ secrets.qnaName }}" -question "${{ github.event.comment.body }}" -subscriptionKey "${{ secrets.QnA_SubscriptionKey }}"
         shell: powershell
 
       - name: Create comment
