@@ -14,17 +14,9 @@ jobs:
     runs-on: windows-latest
 
     steps:
-      - name: Checkout Repository #Checkout the Repository into the agent
-        uses: actions/checkout@v2
-
-      - name: Set Environment Variables - Build #Set Variable
-        uses: deep-mm/set-variables@v1.0
-        with:
-          variableFileName: "qna"
-
       - name: Call QnA Service
         id: qna
-        run: .github/scripts/getAnswer.ps1 -QnAName "${{ env.qnaName }}" -projectName "${{ env.qnaName }}" -question "${{ github.event.comment.body }}" -subscriptionKey "${{ secrets.QnA_SubscriptionKey }}"
+        run: .github/scripts/getAnswer.ps1 -QnAName "${{ secrets.qnaName }}" -projectName "${{ secrets.qnaName }}" -question "${{ github.event.comment.body }}" -subscriptionKey "${{ secrets.QnA_SubscriptionKey }}"
         shell: powershell
 
       - name: Create comment
