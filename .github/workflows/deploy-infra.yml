@@ -53,3 +53,7 @@ jobs:
           name: QnA_SubscriptionKey
           value: ${{ steps.armOutput.outputs.subscriptionKey }}
           pa_token: ${{ secrets.PAT }}
+
+      - name: Deploy QnA Language Project
+        run: .github/scripts/createLanguageProject.ps1 -QnAName "${{ env.qnaName }}" -projectName "${{ env.qnaName }}" -subscriptionKey "${{ secrets.subscriptionKey }}"
+        shell: powershell
