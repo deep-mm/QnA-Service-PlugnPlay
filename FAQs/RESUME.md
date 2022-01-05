@@ -1,7 +1,7 @@
-# RESUME
+# RESUME FAQs
 
 <!-- 
-This file requires a particular template for the questions and answers to follow, in order for the automated system to use this file for the Knowledge Base.
+The FAQ file requires a particular template for the questions and answers to follow, in order for the automated system to use this file for the Knowledge Base.
 The template is:
 <!-- Template Start -->
 
