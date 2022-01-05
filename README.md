@@ -5,7 +5,7 @@ It just takes about 10 minutes to have your personalized QnA Bot up and running.
 
 This project has 3 parts:
 1. Backend where the QnA Knowledge Base service is hosted for which we utilize Azure.
-2. GitHub Repository FAQ files are utlized to update the QnA service knowledge base automatically.
+2. GitHub Repository FAQ files are utilized to update the QnA service knowledge base automatically.
 3. Frontend where you can interact with the QnA service, which in our case in GitHub Issues Bot & Azure Bot Service
 
 The Architecture is described in the diagram below:
