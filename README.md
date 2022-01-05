@@ -13,6 +13,9 @@ The Architecture is described in the diagram below:
 
 Try out the QnA service with either of the following modes:
 1. [Azure Bot Service](https://yoururl.tech/bot)
-2. [GitHub Issues Bot](https://github.com/deep-mm/QnA-Service-PlugnPlay/issues/1) - Start by @Bot and your questin
+![image](https://user-images.githubusercontent.com/29853549/148166276-afc36840-27ea-471c-8ef0-f4450c69b6f4.png)
+
+2. [GitHub Issues Bot](https://github.com/deep-mm/QnA-Service-PlugnPlay/issues/1) - Start by @Bot and your question
+![image](https://user-images.githubusercontent.com/29853549/148166406-d5aedc7d-fc0a-4fa3-8086-88a83b5e0593.png)
 
 More details about the project and how you can utilize this to create your own bot can be found here [QnA-PlugnPlay](https://deepmehta.co.in/projects/qna-plugnplay)
