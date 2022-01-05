@@ -21,12 +21,13 @@ The template is:
 > #### **Question: What is plug and play QnA Maker?**
 <!-- Answer -->
 
-The plug and play QnA maker allows you to get a kickstart to developing a QnA bot that can be instantly utilized in production scenarios.
+This project is intended to behave as an IP that can be used to deploy a QnA Service onto any Azure subscription for free. It just takes about 10 minutes to have your personalized QnA Bot up and running.
+
 <!-- Answer End -->
 
 <!-- Question -->
 > #### **Question: How to use plug and play QnA Maker?**
 <!-- Answer -->
-
-This is how you can use plug and play QnA Maker.
+The details can be found here
+<a href="https://deepmehta.co.in/projects/qna-plugnplay">How to use Pug & Play QnA Maker</a>
 <!-- Answer End -->
