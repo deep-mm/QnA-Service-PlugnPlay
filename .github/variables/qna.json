@@ -1,10 +1,6 @@
 {
     "variables": [
         {
-            "name": "resourceGroup",
-            "value": "QnA-Maker"
-        },
-        {
             "name": "location",
             "value": "East US"
         },
